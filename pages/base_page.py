@@ -8,7 +8,7 @@ class BasePage:
     Proporciona métodos comunes y configuración base.
     """
     
-    BASE_URL = os.getenv("ETRM_BASE_URL", "https://etrm-qa.enersinc.com/login")
+    BASE_URL = os.environ["ETRM_BASE_URL"]
     
     def __init__(self, page: Page):
         self.page = page

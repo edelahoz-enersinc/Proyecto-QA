@@ -1,7 +1,8 @@
 import pytest
 from playwright.sync_api import Page, expect
 
-BASE_URL = "https://etrm-qa.enersinc.com"
+import os
+BASE_URL = os.environ["ETRM_BASE_URL"].rstrip("/")
 
 class TestLoginSuite:
     """Suite de pruebas para el flujo de login"""
