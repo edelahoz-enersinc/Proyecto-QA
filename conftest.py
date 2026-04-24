@@ -60,7 +60,7 @@ def pytest_runtest_makereport(item, call):
 
                 page.screenshot(path=str(file_path))
 
-                if file_path.exists():
+                if file_path.exists() and pytest_html is not None:
                     html = (
                         f'<div><img src="screenshots/{file_name}" alt="screenshot" '
                         f'style="width:600px;height:auto;" onclick="window.open(this.src)" '
