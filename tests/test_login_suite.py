@@ -1,8 +1,21 @@
+"""
+Suite de pruebas: Inicio de Sesión (Login)
+Módulo: General / Transversales
+
+Marks asignados:
+    @pytest.mark.transversal  — agrupa esta suite junto con logout en el módulo transversal
+    @pytest.mark.login        — permite ejecutar solo los casos de login
+
+Ejecución por etiqueta:
+    pytest -m "transversal"   → ejecuta login + logout juntos
+    pytest -m "login"         → ejecuta solo esta suite
+"""
 import os
 import pytest
 from playwright.sync_api import Page, expect
 
 BASE_URL = os.environ["ETRM_BASE_URL"].rstrip("/")
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers de navegación reutilizables
@@ -11,7 +24,6 @@ BASE_URL = os.environ["ETRM_BASE_URL"].rstrip("/")
 def ir_a_login(page: Page):
     """Navega a la página de login y espera que el formulario esté listo."""
     page.goto(BASE_URL, wait_until="domcontentloaded")
-    # El campo de email del paso 1 tiene un placeholder específico
     expect(page.get_by_placeholder("Ingresa tu email empresarial")).to_be_visible(timeout=8000)
 
 
@@ -30,8 +42,13 @@ def avanzar_a_paso_contrasena(page: Page, email: str):
 # Suite de pruebas de Login
 # ─────────────────────────────────────────────────────────────────────────────
 
+@pytest.mark.transversal
+@pytest.mark.login
 class TestLoginSuite:
-    """Suite de pruebas para el flujo de inicio de sesión del ETRM."""
+    """
+    Suite de pruebas para el flujo de inicio de sesión del ETRM.
+    Etiquetas: transversal, login.
+    """
 
     # ── CASOS ORIENTADOS AL FALLO ─────────────────────────────────────────────
 
@@ -69,7 +86,6 @@ class TestLoginSuite:
         """
         ir_a_login(page)
         avanzar_a_paso_contrasena(page, test_email)
-        # En el paso 2 el email aparece como campo readonly; lo buscamos por valor
         email_readonly = page.locator(f"input[value='{test_email}']")
         expect(email_readonly).to_be_visible(timeout=5000)
 
@@ -81,8 +97,6 @@ class TestLoginSuite:
         """
         ir_a_login(page)
         avanzar_a_paso_contrasena(page, test_email)
-        # La aplicación deshabilita el botón 'Entrar' cuando no hay contraseña ingresada.
-        # Verificamos que el botón esté deshabilitado (not enabled) como protección de UI.
         entrar_button = page.get_by_role("button", name="Entrar")
         expect(entrar_button).to_be_visible(timeout=5000)
         expect(entrar_button).to_be_disabled()
@@ -128,6 +142,5 @@ class TestLoginSuite:
         forgot_button = page.get_by_role("button", name="Olvidaste")
         expect(forgot_button).to_be_visible(timeout=5000)
         forgot_button.click()
-        # La app muestra un formulario de recuperación (SPA, sin recarga completa)
         expect(page.get_by_placeholder("Email del usuario")).to_be_visible(timeout=8000)
         expect(page.get_by_role("button", name="Enviar")).to_be_visible(timeout=5000)
